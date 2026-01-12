@@ -78,16 +78,23 @@ jobs:
     steps:
       - name: Lowercase the repo name and username
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+        
+      # 🚀 NEW STEP: Log in to Azure using Service Principal
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_SPN_CREDENTIALS }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          # 🛑 REMOVE or COMMENT OUT THE PUBLISH PROFILE LINE 🛑
+          # 🛑 IMPORTANT: REMOVE publish-profile input
           # publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} 
           
-          # ✅ ADD THIS LINE TO USE THE SERVICE PRINCIPAL:
-          creds: ${{ secrets.AZURE_SPN_CREDENTIALS }} 
+          # 🛑 IMPORTANT: REMOVE the rejected creds input
+          # creds: ${{ secrets.AZURE_SPN_CREDENTIALS }} 
           
+          # KEEP the images input
           images: 'ghcr.io/${{ env.REPO }}:${{ github.sha }}'
